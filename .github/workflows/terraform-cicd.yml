@@ -8,6 +8,8 @@ on:
     pull_request:
         branches:
             - main
+
+    workflow_dispatch:         
 jobs:
     terraform:
 
@@ -37,3 +39,6 @@ jobs:
 
             - name: Upload Plan Artifact
               uses: actions/upload-artifact@v3
+              with:
+                name: planfile
+                path: planfile
