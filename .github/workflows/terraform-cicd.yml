@@ -1,0 +1,39 @@
+name: Terraform Pipeline
+
+on:
+    push:
+        branches:
+            - main
+
+    pull_request:
+        branches:
+            - main
+jobs:
+    terraform:
+
+        runs-on: ubuntu-latest
+        env:
+            AWS_ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
+            AWS_REGION: "us-east-1"
+        
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+              
+            - name: Terraform setup
+              uses: hashicorp/setup-terraform@v2
+              with:
+                terraform_version: '1.10.5'
+            
+            - name: Init
+              run: terraform init
+            
+            - name: Validate
+              run: terraform validate
+
+            - name: Plan
+              run: terraform plan -out=planfile
+
+            - name: Upload Plan Artifact
+              uses: actions/upload-artifact@v3
