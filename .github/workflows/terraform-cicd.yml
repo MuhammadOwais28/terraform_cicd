@@ -11,9 +11,9 @@ on:
 
     workflow_dispatch:         
 jobs:
-    terraform:
+    plan:
 
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-22.04
         env:
             AWS_ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
@@ -38,7 +38,41 @@ jobs:
               run: terraform plan -out=planfile
 
             - name: Upload Plan Artifact
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                 name: planfile
                 path: planfile
+
+    apply:
+        
+        runs-on: ubuntu-22.04
+        needs: plan
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+            AWS_ACCESS_KEY: ${{ secrets.ACCESS_KEY }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
+            AWS_REGION: "us-east-1"
+        
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+              
+            - name: Terraform setup
+              uses: hashicorp/setup-terraform@v2
+              with:
+                terraform_version: '1.10.5'
+            
+            - name: Init
+              run: terraform init
+            - name: Download Plan file
+              uses: actions/download-artifact@v3
+              with:
+                name: planfile
+                path: ./              #for saving the file
+              
+              
+            - name: Apply
+              run: terraform apply ./planfile
+
+
+            
