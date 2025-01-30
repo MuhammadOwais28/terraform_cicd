@@ -64,15 +64,17 @@ jobs:
             
             - name: Init
               run: terraform init
-            - name: Download Plan file
-              uses: actions/download-artifact@v3
-              with:
-                name: planfile
-                path: ./              #for saving the file
+            
+            
+              # - name: Download Plan file
+            #   uses: actions/download-artifact@v3
+            #   with:
+            #     name: planfile
+            #     path: ./              #for saving the file
               
               
             - name: Apply
-              run: terraform apply ./planfile
+              run: terraform apply  -auto-approve
 
 
             
